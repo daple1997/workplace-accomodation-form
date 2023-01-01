@@ -1,12 +1,23 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import firebase from "./firebaseConfig.js";
 import { useState, useEffect } from "react";
+import Select from 'react-select'
+
+const options = [
+    { value: 'name', label: 'Name' },
+    { value: 'id', label: 'ID' },
+    { value: 'dept', label: 'Department' },
+    { value: 'es', label: 'Employment Status' },
+    { value: 'email', label: 'Email' },
+    { value: 'url', label: 'URL' }
+  ]
 
 const HR = () => {
     const [subs, setSubs] = useState([]);
-    //const [docIDs, setDocIDs] = useState([]);
+    const [filt, setFilt] = useState("");
+    const [choice, setChoice] = useState("");
     const fetchPost = async () => {
-       
+        setSubs([]);
         const querySnapshot = await getDocs(collection(firebase.db, "submissions"));
         querySnapshot.forEach((doc) => {
             console.log(doc.id, " => ", doc.data());
@@ -14,15 +25,57 @@ const HR = () => {
         }); 
        
     }
+    const handleChoice = async(option) => {
+        setChoice(option);
+    }
+
+    const handleChange = async(filter) => {
+        console.log(choice + " " + filter);
+        setFilt(filter);
+    }
+
+    const search = async() => {
+        if(choice) {
+            setSubs([]);
+            const q = query(collection(firebase.db, "submissions"), where(choice, "==", filt));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                console.log(doc.id, " => ", doc.data());
+                setSubs((subs) => [...subs, doc.data()]);
+            });
+        }
+    }
    
     useEffect(()=>{
-        console.log('i fire once');
         fetchPost();
     }, [])
 
     return (
         <div>
           <h1>HR Page</h1>
+          <label htmlFor="location"> 
+             Choice of parameter
+            <input 
+                type="text" 
+                id="choice" 
+                value={choice} 
+                placeholder="Choice"
+                onChange={(e) => handleChoice(e.target.value)}
+                />
+			
+          </label>
+          <label htmlFor="location"> 
+             Filter
+            <input 
+                type="text" 
+                id="filt" 
+                value={filt} 
+                placeholder="Filter"
+                onChange={(e) => handleChange(e.target.value)}
+                />
+			
+          </label>
+          <button onClick={search}>Search</button>
           <table>
             <thead>
                 <tr>
