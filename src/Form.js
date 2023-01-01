@@ -78,10 +78,10 @@ export default function Form(){
     }
 
     return (
-        <div>
-            <div className="App-header">
+        <div className="App-header">
+            
                 <h1>Submission Form</h1>
-            </div>
+            
                 <p>
                     Name: 
                     <input 
