@@ -1,5 +1,14 @@
 import {useState} from 'react';
-
+import firebase from "./firebaseConfig.js"
+import {
+    ref,
+    uploadBytesResumable,
+    getDownloadURL 
+} from "firebase/storage";
+import { collection, 
+    addDoc, 
+    getDocs 
+} from "firebase/firestore";
 
 export default function Form(){
     const [name, setName] = useState("");
@@ -7,9 +16,70 @@ export default function Form(){
     const [dept, setDept] = useState("");
     const [es, setES] = useState("");
     const [email, setEmail] = useState("");
+    const [file, setFile] = useState();
+    const [percent, setPercent] = useState(0);
+    const [url, setUrl] = useState("");
+
+    const handleFileChange = (e) => {
+        if (e.target.files) {
+          setFile(e.target.files[0]);
+        }
+      };
+    
+    const handleUploadClick = () => {
+        if(!name || !id || !dept || !es || !email) {
+            alert('Please fill in all the fields');
+            return;
+        }
+        if (!file) {
+          alert('Please Upload a File')
+          return;
+        }
+    
+        const storageRef = ref(firebase.storage, `/files/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        uploadTask.on(
+                  "state_changed",
+                  (snapshot) => {
+                    const percent = Math.round(
+                      (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                  );
+          
+                  // update progress
+                      setPercent(percent);
+                  },
+                  (err) => console.log("Error: " + err),
+                  () => {
+                      
+                      getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                        console.log(url);
+                        setUrl(url);
+                        addSubmission();
+                    });
+                  }
+                ); 
+      };
+
+    const addSubmission = async() => {
+        
+        try {
+            const docRef = await addDoc(collection(firebase.db, "submissions"), {
+              name: name,
+              id: id,
+              dept: dept,
+              es: es,
+              email: email,
+              url: url
+            });
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+
     return (
         <div>
-            <form>
+
                 <p>
                     Name: 
                     <input 
@@ -62,7 +132,12 @@ export default function Form(){
                         onChange={(e)=>setEmail(e.target.value)}
                     /> 
                 </p>
-            </form>
+                <input type="file" onChange={handleFileChange} />
+
+                <div>{file && `${file.name} - ${file.type}`}</div>
+
+                <button onClick={handleUploadClick}>Upload</button>
+                <p>{percent} "% done"</p>
         </div>
     );
 }
