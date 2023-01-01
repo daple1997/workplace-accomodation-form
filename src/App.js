@@ -1,17 +1,20 @@
 import './App.css';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
 import Form from  './Form.js';
-import DocumentUpload from './DocumentUpload';
+import HR from  './HR.js';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Submission Form</h1>
-      </header>
-      <div>
-        <Form/>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<Form/>} />
+        <Route path="/hr" element={<HR/>} />
+      </Routes>
+    </Router>
   );
 }
 

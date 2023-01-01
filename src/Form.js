@@ -6,8 +6,7 @@ import {
     getDownloadURL 
 } from "firebase/storage";
 import { collection, 
-    addDoc, 
-    getDocs 
+    addDoc 
 } from "firebase/firestore";
 
 export default function Form(){
@@ -79,7 +78,9 @@ export default function Form(){
 
     return (
         <div>
-
+            <div className="App-header">
+                <h1>Submission Form</h1>
+            </div>
                 <p>
                     Name: 
                     <input 
