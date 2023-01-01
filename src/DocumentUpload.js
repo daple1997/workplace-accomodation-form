@@ -1,7 +1,14 @@
 import { useState } from 'react';
+import storage from "./firebaseConfig.js"
+import {
+      ref,
+      uploadBytesResumable,
+      getDownloadURL 
+  } from "firebase/storage";
 
 function DocumentUpload() {
   const [file, setFile] = useState();
+  const [percent, setPercent] = useState(0);
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -11,21 +18,30 @@ function DocumentUpload() {
 
   const handleUploadClick = () => {
     if (!file) {
+      alert('Please Upload a File')
       return;
     }
 
-    // 👇 Uploading the file using the fetch API to the server
-    fetch('https://httpbin.org/post', {
-      method: 'POST',
-      body: file,
-      headers: {
-        'content-type': file.type,
-        'content-length': `${file.size}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.error(err));
+    const storageRef = ref(storage, `/files/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTask.on(
+              "state_changed",
+              (snapshot) => {
+                const percent = Math.round(
+                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              );
+      
+              // update progress
+                  setPercent(percent);
+              },
+              (err) => console.log("Error: " + err),
+              () => {
+                  // download url
+                  getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                    console.log(url);
+                });
+              }
+            ); 
   };
 
   return (
@@ -35,6 +51,7 @@ function DocumentUpload() {
       <div>{file && `${file.name} - ${file.type}`}</div>
 
       <button onClick={handleUploadClick}>Upload</button>
+      <p>{percent} "% done"</p>
     </div>
   );
 }
