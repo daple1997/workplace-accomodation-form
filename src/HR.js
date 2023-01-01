@@ -1,16 +1,6 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
 import firebase from "./firebaseConfig.js";
 import { useState, useEffect } from "react";
-import Select from 'react-select'
-
-const options = [
-    { value: 'name', label: 'Name' },
-    { value: 'id', label: 'ID' },
-    { value: 'dept', label: 'Department' },
-    { value: 'es', label: 'Employment Status' },
-    { value: 'email', label: 'Email' },
-    { value: 'url', label: 'URL' }
-  ]
 
 const HR = () => {
     const [subs, setSubs] = useState([]);
