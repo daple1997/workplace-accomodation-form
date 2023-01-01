@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import { Link } from 'react-router-dom';
 import firebase from "./firebaseConfig.js"
 import {
     ref,
@@ -139,6 +140,8 @@ export default function Form(){
 
                 <button onClick={handleUploadClick}>Upload</button>
                 <p>{percent} "% done"</p>
+                <br></br>
+                <Link to="/hr">Human Resources</Link>
         </div>
     );
 }
