@@ -10,7 +10,6 @@ function App() {
       </header>
       <div>
         <Form/>
-        <DocumentUpload/>
       </div>
     </div>
   );
